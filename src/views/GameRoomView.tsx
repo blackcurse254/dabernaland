@@ -27,6 +27,7 @@ import { BallBoardModal } from '../components/BallBoardModal';
 import { SoundEngine, numberToPersianWords } from '../utils/audio';
 import { socket } from '../services/socket';
 import { VoiceCaller } from '../components/VoiceCaller';
+import { CelebratoryWinnerOverlay } from '../components/CelebratoryWinnerOverlay';
 
 interface GameRoomViewProps {
   room: GameRoom;
@@ -59,10 +60,12 @@ export const GameRoomView: React.FC<GameRoomViewProps> = ({
   const [ticketBuyCount, setTicketBuyCount] = useState(1);
   const [isBoardOpen, setIsBoardOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(SoundEngine.getMuted());
+  const [showWinnerOverlay, setShowWinnerOverlay] = useState(false);
 
-  // Trigger celebration on tombola (full deberna) win
+  // Trigger celebration on tombola (full deberna) win or game ended
   useEffect(() => {
-    if (room.winners?.tombola) {
+    if (room.status === 'ended' || room.winners?.tombola) {
+      setShowWinnerOverlay(true);
       SoundEngine.playWinFanfare();
       try {
         confetti({
@@ -73,8 +76,10 @@ export const GameRoomView: React.FC<GameRoomViewProps> = ({
       } catch {
         // ignore
       }
+    } else if (room.status === 'waiting') {
+      setShowWinnerOverlay(false);
     }
-  }, [room.winners?.tombola]);
+  }, [room.status, room.winners?.tombola]);
 
   const toggleMute = () => {
     const next = !isMuted;
@@ -360,13 +365,22 @@ export const GameRoomView: React.FC<GameRoomViewProps> = ({
             autoAnnounce={isPlaying}
           />
 
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-2 flex-wrap">
             <button
               onClick={() => setIsBoardOpen(true)}
               className="px-3 py-1.5 rounded-xl bg-[#111319] hover:bg-[#1a1d26] border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
             >
               <Grid className="w-3.5 h-3.5 text-amber-400" />
               <span>تابلوی کامل ۹۰ شماره ({room.drawnNumbers?.length || 0} شماره خارج شده)</span>
+            </button>
+
+            <button
+              onClick={() => setShowWinnerOverlay(true)}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-600/30 via-yellow-500/30 to-amber-600/30 hover:from-amber-600/50 hover:to-yellow-500/50 border border-amber-400/60 text-[#FFE600] text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+              title="مشاهده جشن پیروزی برندگان این دور"
+            >
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span>جشن قهرمانان 🏆</span>
             </button>
           </div>
         </div>
@@ -478,6 +492,19 @@ export const GameRoomView: React.FC<GameRoomViewProps> = ({
         onClose={() => setIsBoardOpen(false)}
         drawnNumbers={room.drawnNumbers}
         currentDrawnNumber={room.currentDrawnNumber}
+      />
+
+      {/* Celebratory Luxury Gold 'Winner' Overlay */}
+      <CelebratoryWinnerOverlay
+        isOpen={showWinnerOverlay}
+        onClose={() => setShowWinnerOverlay(false)}
+        room={room}
+        currentUser={user}
+        onLeaveToLobby={onLeaveRoom}
+        onPlayNextRound={() => {
+          setShowWinnerOverlay(false);
+          socket.emit('start:game_now', { roomId: room.id });
+        }}
       />
     </div>
   );

@@ -16,6 +16,7 @@ import { LuckyWheelView } from './views/LuckyWheelView';
 import { WalletView } from './views/WalletView';
 import { RulesView } from './views/RulesView';
 import { ProfileView } from './views/ProfileView';
+import { AuthView } from './views/AuthView';
 import { socket } from './services/socket';
 import { fetchMe, fetchRooms } from './services/api';
 import { User, GameRoom, TabType, Transaction } from './types';
@@ -24,6 +25,7 @@ import { SoundEngine } from './utils/audio';
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [isInLobby, setIsInLobby] = useState(false);
   const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
@@ -45,7 +47,10 @@ export default function App() {
       .then((res) => {
         if (res.user) setUser(res.user);
       })
-      .catch((e) => console.log('Initial user load:', e));
+      .catch((e) => console.log('Initial user load:', e))
+      .finally(() => {
+        setIsLoadingAuth(false);
+      });
 
     fetchRooms()
       .then((res) => {
@@ -217,6 +222,32 @@ export default function App() {
   };
 
   const activeRoom = rooms.find((r) => r.id === activeRoomId);
+
+  // 1. Initial Authentication Loading State
+  if (isLoadingAuth) {
+    return (
+      <div className="min-h-screen bg-[#030406] flex flex-col items-center justify-center p-4 font-['Vazirmatn',sans-serif]">
+        <div className="relative">
+          <div className="w-20 h-20 rounded-3xl ball-3d border-2 border-amber-300 shadow-[0_0_40px_rgba(245,158,11,0.6)] flex items-center justify-center text-slate-950 font-black text-3xl animate-bounce">
+            🎲
+          </div>
+          <div className="absolute inset-0 rounded-3xl border-2 border-amber-400 animate-ping opacity-25" />
+        </div>
+        <div className="mt-5 text-center">
+          <h2 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-[#FFE600] to-amber-400">
+            دبرنا لند
+          </h2>
+          <p className="text-xs text-amber-200/60 font-bold mt-1">در حال آماده‌سازی میزهای بازی...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Mandatory First Screen: Registration & Login Gateway
+  // Without completing registration/login, user cannot access any part of the site
+  if (!user) {
+    return <AuthView onSuccess={handleAuthSuccess} />;
+  }
 
   return (
     <div className="min-h-screen bg-[#030406] text-slate-100 flex flex-col font-['Vazirmatn',sans-serif]">

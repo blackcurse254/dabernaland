@@ -670,9 +670,23 @@ app.post('/api/auth/verify-otp', (req: Request, res: Response) => {
 // 3. Current User Me
 app.get('/api/auth/me', (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
-  const userId = authHeader?.replace('Bearer ', '') || seedUserId;
-  const user = users.get(userId) || users.get(seedUserId);
-  return res.json({ user });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.json({ user: null });
+  }
+  const token = authHeader.replace('Bearer ', '').trim();
+  if (!token || token === 'undefined' || token === 'null') {
+    return res.json({ user: null });
+  }
+  let foundUser = users.get(token);
+  if (!foundUser) {
+    for (const [id, u] of users.entries()) {
+      if (token.includes(id)) {
+        foundUser = u;
+        break;
+      }
+    }
+  }
+  return res.json({ user: foundUser || null });
 });
 
 // 4. Update Profile

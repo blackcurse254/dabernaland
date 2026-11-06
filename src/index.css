@@ -142,3 +142,148 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #b45309;
 }
+
+/* ==========================================================================
+   Celebratory 'Winner' Overlay Animations - Luxury Casino Gold & Deep Obsidian
+   ========================================================================== */
+
+/* 1. Pulsing Radial Gold Glow */
+@keyframes goldRadialPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.35;
+    filter: drop-shadow(0 0 25px rgba(245, 158, 11, 0.4));
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.85;
+    filter: drop-shadow(0 0 65px rgba(255, 230, 0, 0.8));
+  }
+  100% {
+    transform: scale(0.85);
+    opacity: 0.35;
+    filter: drop-shadow(0 0 25px rgba(245, 158, 11, 0.4));
+  }
+}
+
+/* 2. Rotating Casino Gold Sunburst Rays */
+@keyframes goldRaysRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 3. Twinkling & Floating Gold Sparkles */
+@keyframes goldSparkleTwinkle {
+  0% {
+    transform: translateY(0px) scale(0.4) rotate(0deg);
+    opacity: 0.1;
+  }
+  50% {
+    transform: translateY(-18px) scale(1.2) rotate(180deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 10px #ffe600);
+  }
+  100% {
+    transform: translateY(-36px) scale(0.3) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* 4. Trophy Pop & Elastic Bounce */
+@keyframes goldTrophyPop {
+  0% {
+    transform: scale(0.3) translateY(60px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15) translateY(-8px);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(0.96) translateY(2px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 5. Gold Ribbon & Banner Sheen Shimmer */
+@keyframes goldBannerShimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* Celebratory Utility Classes */
+.winner-overlay-backdrop {
+  background: radial-gradient(circle at 50% 45%, rgba(20, 16, 5, 0.94) 0%, rgba(5, 6, 8, 0.97) 70%, rgba(2, 3, 4, 0.99) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.gold-radial-aura {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.45) 0%, rgba(217, 119, 6, 0.2) 45%, rgba(0, 0, 0, 0) 70%);
+  animation: goldRadialPulse 4s ease-in-out infinite;
+}
+
+.gold-rays-spin {
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 230, 0, 0.18) 0deg 15deg,
+    transparent 15deg 30deg,
+    rgba(245, 158, 11, 0.18) 30deg 45deg,
+    transparent 45deg 60deg,
+    rgba(255, 230, 0, 0.18) 60deg 75deg,
+    transparent 75deg 90deg,
+    rgba(245, 158, 11, 0.18) 90deg 105deg,
+    transparent 105deg 120deg,
+    rgba(255, 230, 0, 0.18) 120deg 135deg,
+    transparent 135deg 150deg,
+    rgba(245, 158, 11, 0.18) 150deg 165deg,
+    transparent 165deg 180deg,
+    rgba(255, 230, 0, 0.18) 180deg 195deg,
+    transparent 195deg 210deg,
+    rgba(245, 158, 11, 0.18) 210deg 225deg,
+    transparent 225deg 240deg,
+    rgba(255, 230, 0, 0.18) 240deg 255deg,
+    transparent 255deg 270deg,
+    rgba(245, 158, 11, 0.18) 270deg 285deg,
+    transparent 285deg 300deg,
+    rgba(255, 230, 0, 0.18) 300deg 315deg,
+    transparent 315deg 330deg,
+    rgba(245, 158, 11, 0.18) 330deg 345deg,
+    transparent 345deg 360deg
+  );
+  animation: goldRaysRotate 28s linear infinite;
+}
+
+.gold-sparkle {
+  position: absolute;
+  pointer-events: none;
+  animation: goldSparkleTwinkle 2.5s ease-in-out infinite;
+}
+
+.gold-trophy-pop {
+  animation: goldTrophyPop 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.gold-banner-shimmer {
+  background: linear-gradient(
+    90deg,
+    #b45309 0%,
+    #f59e0b 25%,
+    #fff7c2 50%,
+    #f59e0b 75%,
+    #b45309 100%
+  );
+  background-size: 200% 100%;
+  animation: goldBannerShimmer 3s infinite linear;
+}
+
