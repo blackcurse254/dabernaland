@@ -7,11 +7,9 @@ import React, { useState, useEffect } from 'react';
 import {
   Phone,
   KeyRound,
-  Sparkles,
   AlertCircle,
   ArrowRight,
   ShieldCheck,
-  Gift,
   Coins,
   Trophy,
   CheckCircle2,
@@ -26,9 +24,8 @@ interface AuthViewProps {
 
 export const AuthView: React.FC<AuthViewProps> = ({ onSuccess }) => {
   const [step, setStep] = useState<'phone' | 'code'>('phone');
-  const [phone, setPhone] = useState('09123456789');
+  const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
-  const [previewCode, setPreviewCode] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(120);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,12 +50,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccess }) => {
 
     setIsLoading(true);
     try {
-      const res = await sendOtp(cleanPhone);
-      const generatedCode = res.previewCode || '12345';
-      setPreviewCode(generatedCode);
+      await sendOtp(cleanPhone);
       setStep('code');
       setCountdown(120);
-      setCode(generatedCode); // Auto-fill for seamless preview sandbox testing
+      setCode('');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'خطا در ارسال پیامک کد ورود');
     } finally {
@@ -88,11 +83,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccess }) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const setPresetPhone = (preset: string) => {
-    setPhone(preset);
-    setError(null);
   };
 
   return (
@@ -127,17 +117,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccess }) => {
 
         {/* Auth Glass Card */}
         <div className="card-3d rounded-3xl p-6 sm:p-8 border-2 border-amber-500/35 shadow-2xl relative">
-          {/* Top Badge: 100k Gift */}
-          <div className="mb-6 p-3 rounded-2xl bg-gradient-to-r from-[#2a1d06] via-[#3d2a08] to-[#2a1d06] border border-amber-400/40 text-amber-300 flex items-center justify-between text-xs font-bold shadow-inner">
-            <div className="flex items-center gap-2">
-              <Gift className="w-5 h-5 text-[#FFE600] shrink-0 animate-bounce" />
-              <span>هدیه ویژه عضویت جدید</span>
-            </div>
-            <span className="font-mono text-[#FFE600] font-black text-sm">
-              ۱۰۰،۰۰۰ تومان رایگان
-            </span>
-          </div>
-
           {/* Step Header */}
           <div className="text-center mb-6">
             <h2 className="text-lg font-black text-white flex items-center justify-center gap-2">
@@ -155,8 +134,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccess }) => {
             </h2>
             <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
               {step === 'phone'
-                ? 'برای ورود به میزهای بازی و دریافت شارژ اولیه، شماره همراه خود را وارد کنید:'
-                : `کد پیامک شده ۵ رقمی به شماره ${phone} را وارد نمایید:`}
+                ? 'برای ورود به حساب کاربری و دسترسی به میزهای بازی، شماره همراه خود را وارد نمایید:'
+                : `کد تایید ۵ رقمی پیامک شده به شماره ${phone} را وارد نمایید:`}
             </p>
           </div>
 
@@ -165,24 +144,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccess }) => {
             <div className="mb-4 p-3 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2 animate-fade-in">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
               <span>{error}</span>
-            </div>
-          )}
-
-          {/* Sandbox Auto-Fill Helper Notification */}
-          {previewCode && step === 'code' && (
-            <div className="mb-5 p-3.5 rounded-2xl bg-[#1f1906] border-2 border-amber-400/60 text-amber-200 text-xs shadow-lg glow-gold">
-              <div className="flex items-center justify-between gap-1 mb-1 font-bold">
-                <span className="flex items-center gap-1.5 text-amber-300">
-                  <Sparkles className="w-4 h-4 text-[#FFE600]" />
-                  شبیه‌ساز سامانه پیامک (کاوهنگار)
-                </span>
-                <span className="font-mono bg-black/60 px-2.5 py-1 rounded-xl text-[#FFE600] text-sm font-black tracking-widest border border-amber-500/50">
-                  {previewCode}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                کد یکبار مصرف شبیه‌سازی شد و به طور خودکار جای‌گذاری گردید. کافیست دکمه زیر را لمس فرمایید.
-              </p>
             </div>
           )}
 
@@ -198,7 +159,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccess }) => {
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="09123456789"
+                    placeholder="۰۹xxxxxxxxx"
                     maxLength={11}
                     dir="ltr"
                     className="w-full h-13 bg-[#08090d] border-2 border-amber-500/30 focus:border-amber-400 rounded-2xl px-4 text-center font-mono text-lg font-bold tracking-wider text-[#FFE600] outline-none transition-all placeholder:text-slate-600 focus:shadow-[0_0_20px_rgba(245,158,11,0.25)]"
@@ -206,27 +167,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccess }) => {
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-500">
                     +۹۸
                   </div>
-                </div>
-              </div>
-
-              {/* Quick Preset Buttons for Test/Demo */}
-              <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 pt-1">
-                <span>تست سریع شماره‌های نمونه:</span>
-                <div className="flex gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setPresetPhone('09123456789')}
-                    className="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-amber-500/20 text-amber-300 font-mono text-xs transition-colors"
-                  >
-                    ۰۹۱۲۳۴۵۶۷۸۹
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPresetPhone('09359876543')}
-                    className="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-amber-500/20 text-amber-300 font-mono text-xs transition-colors"
-                  >
-                    ۰۹۳۵۹۸۷۶۵۴۳
-                  </button>
                 </div>
               </div>
 
@@ -301,7 +241,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccess }) => {
                 ) : (
                   <>
                     <CheckCircle2 className="w-5 h-5 text-slate-950" />
-                    <span>تایید و ورود مستقیم به بازی</span>
+                    <span>تایید و ورود به بازی</span>
                   </>
                 )}
               </button>
@@ -320,7 +260,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onSuccess }) => {
             </div>
             <div className="flex flex-col items-center gap-1">
               <Lock className="w-4 h-4 text-sky-400" />
-              <span>ورود بدون رمز عبور</span>
+              <span>ورود با پیامک امن</span>
             </div>
           </div>
         </div>

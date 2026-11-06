@@ -20,9 +20,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onSuccess,
 }) => {
   const [step, setStep] = useState<'phone' | 'code'>('phone');
-  const [phone, setPhone] = useState('09123456789');
+  const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
-  const [previewCode, setPreviewCode] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(120);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,11 +48,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setIsLoading(true);
     try {
-      const res = await sendOtp(cleanPhone);
-      setPreviewCode(res.previewCode || '12345');
+      await sendOtp(cleanPhone);
       setStep('code');
       setCountdown(120);
-      setCode(res.previewCode || '12345'); // Pre-fill in sandbox for frictionless user experience
+      setCode('');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'خطا در ارسال پیامک');
     } finally {
