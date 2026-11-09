@@ -116,44 +116,10 @@ export interface GameRoom {
   };
 }
 
-// In-Memory Database
+// In-Memory Database (Clean Production Ready)
 const users: Map<string, User> = new Map();
 const otpStore: Map<string, { code: string; expiresAt: number }> = new Map();
 const transactions: Transaction[] = [];
-
-// Seed an initial demo user matching the screenshot (امیرعلی یوسفی / sosis)
-const seedUserId = 'user_demo_1';
-users.set(seedUserId, {
-  id: seedUserId,
-  phone: '09012310393',
-  name: 'امیرعلی یوسفی',
-  username: 'sosis',
-  avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
-  balance: 50000,
-  spinsLeft: 1,
-  createdAt: 'جمعه ۱۵ آبان ۱۴۰۵',
-  stats: {
-    gamesPlayed: 14,
-    wins: 3,
-    totalWon: 150000,
-    lineWins: 5,
-  },
-});
-
-// Seed some initial transactions
-transactions.push(
-  {
-    id: 'tx_101',
-    userId: seedUserId,
-    type: 'deposit',
-    amount: 50000,
-    status: 'successful',
-    title: 'شارژ آنلاین کیف پول',
-    description: 'درگاه پرداخت زیبال / شتاب',
-    date: 'امروز ۱۱:۴۵',
-    trackingCode: 'ZBL-894210',
-  }
-);
 
 // ==========================================
 // TOMBOLA TICKET GENERATOR (Standard 3x9, 1-90)
@@ -249,26 +215,6 @@ function generateTombolaTicket(): TicketMatrix {
 // GAME ROOMS STATE & ENGINE
 // ==========================================
 
-function createDefaultParticipants(): Participant[] {
-  // Matches image_a0dd3853.png: 14 participants, total 29 cards sold out of 30!
-  return [
-    { id: 'p_melina', name: 'ملینا', avatar: 'م', cardsCount: 2 },
-    { id: 'p_sananaz', name: 'ساناناز', avatar: 'س', cardsCount: 3 },
-    { id: 'p_eshghi', name: 'عشقی عشق', avatar: 'ع', cardsCount: 2 },
-    { id: 'p_seydi', name: 'سیدی m+m', avatar: 'س', cardsCount: 3 },
-    { id: 'p_amirreza', name: 'امیرارسلان', avatar: 'ا', cardsCount: 2 },
-    { id: 'p_raha', name: 'رها بانو', avatar: 'ر', cardsCount: 2 },
-    { id: 'p_parham', name: 'پرهام ۷', avatar: 'پ', cardsCount: 2 },
-    { id: 'p_sara', name: 'سارا_۹۹', avatar: 'س', cardsCount: 2 },
-    { id: 'p_kourosh', name: 'کوروش کبیر', avatar: 'ک', cardsCount: 2 },
-    { id: 'p_armin', name: 'آرمین_vip', avatar: 'آ', cardsCount: 2 },
-    { id: 'p_niloofar', name: 'نیلوفر آبی', avatar: 'ن', cardsCount: 2 },
-    { id: 'p_shahab', name: 'شهاب سنگ', avatar: 'ش', cardsCount: 2 },
-    { id: 'p_maryam', name: 'مریم بانو', avatar: 'م', cardsCount: 2 },
-    { id: 'p_fariborz', name: 'فریبرز_تهران', avatar: 'ف', cardsCount: 1 },
-  ];
-}
-
 const rooms: Map<string, GameRoom> = new Map();
 
 const initialRoomConfigs: Partial<GameRoom>[] = [
@@ -277,9 +223,9 @@ const initialRoomConfigs: Partial<GameRoom>[] = [
     name: 'اتاق ۵،۰۰۰ تومانی',
     cardPrice: 5000,
     maxCards: 30,
-    line1Prize: 12750, // جایزه دبرنا خطی (from image_5a30d6d0.png)
+    line1Prize: 12750, // جایزه دبرنا خطی
     line2Prize: 0,
-    tombolaPrize: 114750, // جایزه دبرنا پر (from image_5a30d6d0.png)
+    tombolaPrize: 114750, // جایزه دبرنا پر
   },
   {
     id: 'gold_vip',
@@ -320,7 +266,6 @@ const initialRoomConfigs: Partial<GameRoom>[] = [
 ];
 
 initialRoomConfigs.forEach((cfg) => {
-  const parts = createDefaultParticipants();
   rooms.set(cfg.id!, {
     id: cfg.id!,
     name: cfg.name!,
@@ -330,12 +275,12 @@ initialRoomConfigs.forEach((cfg) => {
     line2Prize: cfg.line2Prize!,
     tombolaPrize: cfg.tombolaPrize!,
     status: 'waiting',
-    countdown: 172, // 02:52 countdown as in image_a0dd3853.png
+    countdown: 180,
     drawnNumbers: [],
     currentDrawnNumber: null,
     tickets: [],
     connectedPlayers: [],
-    participants: parts,
+    participants: [],
     winners: {},
   });
 });
@@ -365,33 +310,6 @@ function startGameForRoom(roomId: string) {
   room.winners = {};
   roomBags.set(roomId, createShuffledBag());
 
-  // Ensure participants have tickets generated up to 30 cards total
-  const existingTickets = [...room.tickets];
-  const existingUserIds = new Set(existingTickets.map((t) => t.userId));
-
-  // If room tickets are fewer than 30, generate tickets for the remaining participants
-  room.participants.forEach((p) => {
-    // If participant already has tickets (e.g. human user), keep them
-    const pCurrentCount = existingTickets.filter((t) => t.userId === p.id).length;
-    const needed = Math.max(0, p.cardsCount - pCurrentCount);
-    for (let i = 0; i < needed; i++) {
-      existingTickets.push({
-        id: `tkt_${p.id}_${i + 1}`,
-        userId: p.id,
-        userName: p.name,
-        roomId: room.id,
-        matrix: generateTombolaTicket(),
-        marked: [
-          [false, false, false, false, false, false, false, false, false],
-          [false, false, false, false, false, false, false, false, false],
-          [false, false, false, false, false, false, false, false, false],
-        ],
-      });
-    }
-  });
-
-  room.tickets = existingTickets.slice(0, 30);
-
   io.to(roomId).emit('room:state', room);
   io.emit('lobby:rooms_update', Array.from(rooms.values()));
 }
@@ -401,11 +319,11 @@ function resetRoomToWaiting(roomId: string) {
   if (!room) return;
 
   room.status = 'waiting';
-  room.countdown = 172; // Reset to 02:52
+  room.countdown = 180;
   room.drawnNumbers = [];
   room.currentDrawnNumber = null;
   room.tickets = [];
-  room.participants = createDefaultParticipants();
+  room.participants = [];
   room.winners = {};
   roomBags.delete(roomId);
 
@@ -629,8 +547,8 @@ app.post('/api/auth/verify-otp', (req: Request, res: Response) => {
       name: `کاربر ${phone.slice(-4)}`,
       username: `player_${phone.slice(-4)}`,
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
-      balance: 100000, // Welcome bonus of 100,000 Tomans
-      spinsLeft: 3,
+      balance: 0, // Initial balance is zero (clean production)
+      spinsLeft: 0,
       createdAt: 'امروز',
       stats: {
         gamesPlayed: 0,
@@ -640,19 +558,6 @@ app.post('/api/auth/verify-otp', (req: Request, res: Response) => {
       },
     };
     users.set(newId, user);
-
-    // Welcome transaction
-    transactions.unshift({
-      id: `tx_${Date.now()}`,
-      userId: newId,
-      type: 'deposit',
-      amount: 100000,
-      status: 'successful',
-      title: 'هدیه خوش‌آمدگویی',
-      description: 'شارژ اولیه حساب کاربری دبرنا لند',
-      date: 'هم‌اکنون',
-      trackingCode: 'GIFT-100K',
-    });
   }
 
   // Clear OTP
@@ -692,7 +597,7 @@ app.get('/api/auth/me', (req: Request, res: Response) => {
 // 4. Update Profile
 app.post('/api/auth/update-profile', (req: Request, res: Response) => {
   const { userId, name, username, avatar } = req.body;
-  const user = users.get(userId || seedUserId);
+  const user = users.get(userId);
   if (!user) return res.status(404).json({ error: 'کاربر یافت نشد' });
 
   if (name) user.name = name;
@@ -704,8 +609,11 @@ app.post('/api/auth/update-profile', (req: Request, res: Response) => {
 
 // 5. Wallet Transactions
 app.get('/api/wallet/transactions', (req: Request, res: Response) => {
-  const userId = (req.query.userId as string) || seedUserId;
-  const userTxs = transactions.filter((t) => t.userId === userId || t.userId === seedUserId);
+  const userId = req.query.userId as string;
+  if (!userId) {
+    return res.json({ transactions: [] });
+  }
+  const userTxs = transactions.filter((t) => t.userId === userId);
   return res.json({ transactions: userTxs });
 });
 
@@ -728,7 +636,7 @@ app.post('/api/wallet/deposit', (req: Request, res: Response) => {
 // 7. Verify Deposit (Callback)
 app.post('/api/wallet/deposit/verify', (req: Request, res: Response) => {
   const { userId, amount, trackingCode, status } = req.body;
-  const user = users.get(userId || seedUserId);
+  const user = users.get(userId);
   if (!user) return res.status(404).json({ error: 'کاربر یافت نشد' });
 
   if (status === 'successful') {
@@ -768,7 +676,7 @@ app.post('/api/wallet/deposit/verify', (req: Request, res: Response) => {
 // 8. Withdraw Request
 app.post('/api/wallet/withdraw', (req: Request, res: Response) => {
   const { userId, amount, sheba, cardHolder } = req.body;
-  const user = users.get(userId || seedUserId);
+  const user = users.get(userId);
   if (!user) return res.status(404).json({ error: 'کاربر یافت نشد' });
 
   const numAmount = Number(amount);
@@ -808,7 +716,7 @@ app.post('/api/wallet/withdraw', (req: Request, res: Response) => {
 // 9. Wheel Spin
 app.post('/api/wheel/spin', (req: Request, res: Response) => {
   const { userId } = req.body;
-  const user = users.get(userId || seedUserId);
+  const user = users.get(userId);
   if (!user) return res.status(404).json({ error: 'کاربر یافت نشد' });
 
   if (user.spinsLeft <= 0 && user.balance < 10000) {
@@ -939,7 +847,7 @@ io.on('connection', (socket: Socket) => {
   // Buy Ticket
   socket.on('buy:ticket', ({ roomId, userId, count }: { roomId: string; userId: string; count?: number }) => {
     const room = rooms.get(roomId);
-    const user = users.get(userId || seedUserId);
+    const user = users.get(userId);
     if (!room || !user) return;
 
     const ticketsToBuy = count || 1;

@@ -28,17 +28,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onBack,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState(user?.name || 'امیرعلی یوسفی');
-  const [editUsername, setEditUsername] = useState(user?.username || 'sosis');
+  const [editName, setEditName] = useState(user?.name || '');
+  const [editUsername, setEditUsername] = useState(user?.username || '');
   const [isSaving, setIsSaving] = useState(false);
 
-  const displayName = user?.name || 'امیرعلی یوسفی';
-  const displayPhone = user?.phone || '۰۹۰۱۲۳۱۰۳۹۳';
-  const displayUsername = user?.username || 'sosis';
-  const displayDate = user?.createdAt || 'جمعه ۱۵ آبان ۱۴۰۵';
-  const gamesPlayed = user?.stats.gamesPlayed || 14;
-  const wins = user?.stats.wins || 3;
-  const winPercent = gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : 21;
+  const displayName = user?.name || 'کاربر دبرنا لند';
+  const displayPhone = user?.phone || '—';
+  const displayUsername = user?.username || 'player';
+  const displayDate = user?.createdAt || 'هم‌اکنون';
+  const gamesPlayed = user?.stats.gamesPlayed || 0;
+  const wins = user?.stats.wins || 0;
+  const winPercent = gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : 0;
 
   const handleSave = async () => {
     if (!user) return;

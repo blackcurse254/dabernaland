@@ -55,17 +55,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="flex items-center gap-3.5">
           <div className="text-right">
             <h2 className="text-base sm:text-lg font-black text-white">
-              {user ? user.name : 'امیرعلی یوسفی'}
+              {user ? user.name : 'کاربر دبرنا لند'}
             </h2>
             <span className="text-[11px] text-amber-400 font-mono font-bold">
-              {user ? `@${user.username}` : '@sosis'}
+              {user ? `@${user.username}` : ''}
             </span>
           </div>
 
           {/* 3D Gold Ball Avatar */}
           <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full ball-3d p-0.5 shadow-xl flex items-center justify-center shrink-0 border border-amber-300">
             <div className="w-full h-full rounded-full bg-[#120e04] flex items-center justify-center text-amber-300 font-black text-xl">
-              {user?.name ? user.name[0] : 'ا'}
+              {user?.name ? user.name[0] : 'د'}
             </div>
           </div>
         </div>

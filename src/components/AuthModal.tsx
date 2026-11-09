@@ -115,23 +115,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </div>
         )}
 
-        {/* Sandbox Test Mode Helper Banner */}
-        {previewCode && step === 'code' && (
-          <div className="mb-4 p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-200 text-xs">
-            <div className="flex items-center justify-between gap-1 mb-1 font-semibold text-purple-300">
-              <span className="flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                شبیه‌ساز پیامک (کاوهنگار / SMS.ir)
-              </span>
-              <span className="font-mono bg-purple-900/50 px-2 py-0.5 rounded text-emerald-300 text-sm tracking-wider">
-                {previewCode}
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              کد به صورت خودکار قرار داده شد. برای تست کافیست روی دکمه تایید کلیک کنید.
-            </p>
-          </div>
-        )}
 
         {step === 'phone' ? (
           <form onSubmit={handleSendOtp} className="space-y-4">

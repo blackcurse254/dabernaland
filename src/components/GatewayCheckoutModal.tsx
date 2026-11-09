@@ -137,9 +137,9 @@ export const GatewayCheckoutModal: React.FC<GatewayCheckoutModalProps> = ({
               <div>
                 <label className="block text-[11px] text-slate-400 mb-1">رمز دوم پویا</label>
                 <input
-                  type="text"
+                  type="password"
                   readOnly
-                  value="دریافت شد (تستی)"
+                  value="•••••"
                   className="w-full h-11 bg-slate-950/60 border border-slate-800 rounded-xl px-3 text-center text-xs text-emerald-400 outline-none"
                 />
               </div>
@@ -147,7 +147,7 @@ export const GatewayCheckoutModal: React.FC<GatewayCheckoutModalProps> = ({
           </div>
 
           <p className="text-[11px] text-slate-400 bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl leading-relaxed text-center">
-            جهت تست سریع شارژ حساب در محیط آزمایشی، روی دکمه «تکمیل و پرداخت موفق» کلیک فرمایید.
+            تراکنش تحت بستر شبکه امن شاپرک و درگاه بانکی شتاب انجام می‌پذیرد.
           </p>
 
           {/* Action buttons */}

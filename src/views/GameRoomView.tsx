@@ -224,14 +224,6 @@ export const GameRoomView: React.FC<GameRoomViewProps> = ({
             </button>
           )}
 
-          {/* Instant Start Testing Trigger */}
-          <button
-            onClick={handleFastStart}
-            className="w-full py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-          >
-            <Zap className="w-4 h-4 text-amber-400" />
-            <span>تکمیل فوری ظرفیت (۳۰ کارت) و شروع زنده بازی</span>
-          </button>
         </div>
 
         {/* Pre-game Persian Voice Caller Settings & Test */}
